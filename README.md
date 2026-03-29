@@ -30,16 +30,16 @@ maia = Maia3()
 
 #### `probs(fen, elo_self, elo_oppo)`
 
-Single-position inference. Returns move and WDL probabilities.
+Single-position inference. Returns move and LDW probabilities.
 
 ```python
-move_probs, wdl = maia.probs(
+move_probs, ldw = maia.probs(
     fen="rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
     elo_self=1500,
     elo_oppo=1500,
 )
 # move_probs: {"e7e5": 0.312, "c7c5": 0.201, ...}  — legal moves, sorted by probability
-# wdl:        (0.4823, 0.3011, 0.2166)              — (win, draw, loss) for side to move
+# ldw:        (0.4823, 0.3011, 0.2166)              — (loss, draw, win) for side to move
 ```
 
 ---
@@ -50,7 +50,7 @@ Same as `probs` but accepts lists of positions. More efficient than calling `pro
 
 ```python
 results = maia.batch_probs(fens=[...], elo_selfs=[...], elo_oppos=[...])
-# results: list of (move_probs, wdl) tuples, one per input position
+# results: list of (move_probs, ldw) tuples, one per input position
 ```
 
 ---
@@ -62,7 +62,7 @@ Returns raw model output logits instead of probabilities. These can be optionall
 ```python
 logits_move, logits_value = maia.logits(fen=..., elo_self=1500, elo_oppo=1500)
 # logits_move:  np.ndarray shape (4352,) — one logit per candidate move
-# logits_value: np.ndarray shape (3,)    — raw WDL logits
+# logits_value: np.ndarray shape (3,)    — raw LDW logits
 ```
 
 Pass `mask_move_logits=False` to skip setting illegal move logits to `-inf`.
@@ -113,7 +113,7 @@ simple-maia3-inference --fen '8/8/7B/1p3kpp/p1b5/2P2KP1/1P6/8 b - - 3 47' --elo-
 
 FEN:  8/8/7B/1p3kpp/p1b5/2P2KP1/1P6/8 b - - 3 47
 Elo:  1569 (self) vs 1579 (opponent)
-WDL:  0.5693 / 0.3422 / 0.0884
+LDW:  0.5693 / 0.3422 / 0.0884
 Move probabilities (17 legal moves):
   g5g4   g4+    44.46%  #################
   h5h4   h4     17.69%  #######

@@ -35,26 +35,26 @@ def _compute_probs(
     legal_moves: np.ndarray,
 ) -> tuple[dict[str, float], tuple[float, float, float]]:
     """
-    Converts raw maia3 ONNX outputs into a move probability dict and WDL tuple.
+    Converts raw maia3 ONNX outputs into a move probability dict and LDW tuple.
 
     Args:
         fen:          FEN string of the position; used to determine the side to move.
         logits_move:  Raw move logits from the ONNX model, shape (4352,).
-        logits_value: Raw WDL logits from the ONNX model, shape (3,) — [win, draw, loss].
+        logits_value: Raw LDW logits from the ONNX model, shape (3,) — [win, draw, loss].
         legal_moves:  Binary mask over the 4352 move indices; 1 = legal, 0 = illegal.
 
     Returns:
         move_probs: move → probability dict (legal moves only, sorted descending).
-        wdl:        (win, draw, loss) probabilities from the side-to-move's perspective.
+        LDW:        (loss, draw, win) probabilities from the side-to-move's perspective.
     """
-    wdl = logits_value - logits_value.max()
-    exp_wdl = np.exp(wdl)
-    exp_wdl /= exp_wdl.sum()
+    ldw = logits_value - logits_value.max()
+    exp_ldw = np.exp(ldw)
+    exp_ldw /= exp_ldw.sum()
 
     black_flag = fen.split(" ")[1] == "b"
     if black_flag:
-        exp_wdl = exp_wdl[::-1]
-    wdl_probs = tuple(round(float(p), 4) for p in exp_wdl)
+        exp_ldw = exp_ldw[::-1]
+    ldw_probs = tuple(round(float(p), 4) for p in exp_ldw)
 
     legal_indices = np.where(legal_moves > 0)[0]
     move_ucis = []
@@ -72,7 +72,7 @@ def _compute_probs(
     move_probs = {uci: float(probs[i]) for i, uci in enumerate(move_ucis)}
     move_probs = dict(sorted(move_probs.items(), key=lambda x: x[1], reverse=True))
 
-    return move_probs, wdl_probs
+    return move_probs, ldw_probs
 
 
 class Maia3:
@@ -135,7 +135,7 @@ class Maia3:
 
         Returns:
             logits_move:  shape (4352,) — one logit per candidate move
-            logits_value: shape (3,)    — WDL logits
+            logits_value: shape (3,)    — LDW logits
         """
         lm, lv, legal_moves = self._run([fen], [elo_self], [elo_oppo])
         lm, lv, legal_moves = lm[0], lv[0], legal_moves[0]
@@ -176,7 +176,7 @@ class Maia3:
         self, fen: str, elo_self: float, elo_oppo: float
     ) -> tuple[dict[str, float], tuple[float, float, float]]:
         """
-        Single-position inference returning move probabilities and WDL.
+        Single-position inference returning move probabilities and LDW.
 
         Args:
             fen:      FEN string of the position to evaluate.
@@ -185,7 +185,7 @@ class Maia3:
 
         Returns:
             move_probs: move → probability dict (legal moves only, sorted descending).
-            wdl:        (win, draw, loss) probabilities from the side-to-move's perspective.
+            ldw:        (loss, draw, win) probabilities from the side-to-move's perspective.
         """
         lm, lv, legal = self._run([fen], [elo_self], [elo_oppo])
         return _compute_probs(fen, lm[0], lv[0], legal[0])
@@ -197,7 +197,7 @@ class Maia3:
         elo_oppos: list[float],
     ) -> list[tuple[dict[str, float], tuple[float, float, float]]]:
         """
-        Batch inference returning move probabilities and WDL per position.
+        Batch inference returning move probabilities and LDW per position.
 
         Args:
             fens:      List of FEN strings, one per position.
@@ -205,9 +205,9 @@ class Maia3:
             elo_oppos: Elo rating of the opponent for each position.
 
         Returns:
-            List of (move_probs, wdl) tuples, one per input position.
+            List of (move_probs, ldw) tuples, one per input position.
             move_probs: move → probability dict (legal moves only, sorted descending).
-            wdl:        (win, draw, loss) probabilities from the side-to-move's perspective.
+            ldw:        (loss, draw, win) probabilities from the side-to-move's perspective.
         """
         lm, lv, legal = self._run(fens, elo_selfs, elo_oppos)
         return [
@@ -222,11 +222,11 @@ class Maia3:
 
 def _run_single(args, maia: Maia3) -> None:
     lm, lv, legal = maia._run([args.fen], [args.elo_self], [args.elo_oppo])
-    policy, wdl = _compute_probs(args.fen, lm[0], lv[0], legal[0])
+    policy, ldw = _compute_probs(args.fen, lm[0], lv[0], legal[0])
 
     print(f"\nFEN:  {args.fen}")
     print(f"Elo:  {args.elo_self:.0f} (self) vs {args.elo_oppo:.0f} (opponent)")
-    print(f"WDL:  {wdl[0]:.4f} / {wdl[1]:.4f} / {wdl[2]:.4f}")
+    print(f"LDW:  {ldw[0]:.4f} / {ldw[1]:.4f} / {ldw[2]:.4f}")
     print(f"Move probabilities ({len(policy)} legal moves):")
     board = chess.Board(args.fen)
     for move, prob in policy.items():
