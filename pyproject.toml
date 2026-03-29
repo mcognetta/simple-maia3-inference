@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "simple_maia3_inference"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "chess",
+    "numpy",
+    "onnxruntime",
+]
+
+[project.scripts]
+simple-maia3-inference = "maia3_inference.maia3:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["maia3_inference*"]
+
+[tool.setuptools.package-data]
+maia3_inference = ["*.onnx"]
