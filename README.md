@@ -26,12 +26,9 @@ from maia3_inference import Maia3
 maia = Maia3()
 ```
 
-The constructor accepts an optional `providers` list of [ONNX Runtime execution providers](https://onnxruntime.ai/docs/execution-providers/).
-By default it auto-selects CUDA → CoreML → CPU.
-
 ---
 
-### `probs(fen, elo_self, elo_oppo)`
+#### `probs(fen, elo_self, elo_oppo)`
 
 Single-position inference. Returns move and WDL probabilities.
 
@@ -47,7 +44,7 @@ move_probs, wdl = maia.probs(
 
 ---
 
-### `batch_probs(fens, elo_selfs, elo_oppos)`
+#### `batch_probs(fens, elo_selfs, elo_oppos)`
 
 Same as `probs` but accepts lists of positions. More efficient than calling `probs` in a loop.
 
@@ -58,7 +55,7 @@ results = maia.batch_probs(fens=[...], elo_selfs=[...], elo_oppos=[...])
 
 ---
 
-### `logits(fen, elo_self, elo_oppo, mask_move_logits=True)`
+#### `logits(fen, elo_self, elo_oppo, mask_move_logits=True)`
 
 Returns raw model output logits instead of probabilities. These can be optionally masked (via the `mask_move_logits` flag, which is set to `True` by default) to mask out invalid move probabilities.
 
@@ -72,7 +69,7 @@ Pass `mask_move_logits=False` to skip setting illegal move logits to `-inf`.
 
 ---
 
-### `batch_logits(fens, elo_selfs, elo_oppos, mask_move_logits=True)`
+#### `batch_logits(fens, elo_selfs, elo_oppos, mask_move_logits=True)`
 
 Batched version of `logits`.
 
@@ -80,6 +77,15 @@ Batched version of `logits`.
 logits_move, logits_value = maia.batch_logits(fens=[...], elo_selfs=[...], elo_oppos=[...])
 # logits_move:  np.ndarray shape (N, 4352)
 # logits_value: np.ndarray shape (N, 3)
+```
+
+---
+
+The constructor accepts an optional `providers` list of [ONNX Runtime execution providers](https://onnxruntime.ai/docs/execution-providers/).
+By default it auto-selects CUDA → CoreML → CPU. To force a specific provider:
+
+```python
+maia = Maia3(providers=["CPUExecutionProvider"])
 ```
 
 
