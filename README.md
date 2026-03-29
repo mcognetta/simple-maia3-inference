@@ -34,12 +34,12 @@ Single-position inference. Returns move and LDW probabilities.
 
 ```python
 move_probs, ldw = maia.probs(
-    fen="rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+    fen="8/8/7B/1p3kpp/p1b5/2P2KP1/1P6/8 b - - 3 47",
     elo_self=1500,
     elo_oppo=1500,
 )
-# move_probs: {"e7e5": 0.312, "c7c5": 0.201, ...}  — legal moves, sorted by probability
-# ldw:        (0.4823, 0.3011, 0.2166)              — (loss, draw, win) for side to move
+# move_probs: {'g5g4': 0.494, 'h5h4': 0.163, ...}  — legal moves, sorted by probability
+# ldw:        (0.591, 0.3201, 0.0888)              — (loss, draw, win) for side to move
 ```
 
 ---
