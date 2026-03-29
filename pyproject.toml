@@ -13,11 +13,11 @@ dependencies = [
 ]
 
 [project.scripts]
-simple-maia3-inference = "maia3_inference.maia3:main"
+simple-maia3-inference = "simple_maia3_inference.maia3:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["maia3_inference*"]
+include = ["simple_maia3_inference*"]
 
 [tool.setuptools.package-data]
-maia3_inference = ["*.onnx"]
+simple_maia3_inference = ["*.onnx"]

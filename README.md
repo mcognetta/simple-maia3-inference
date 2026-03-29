@@ -21,7 +21,7 @@ pip install -e simple-maia3-inference
 The API provides direct logit and probability access for single and batched inference.
 
 ```python
-from maia3_inference import Maia3
+from simple_maia3_inference import Maia3
 
 maia = Maia3()
 ```
