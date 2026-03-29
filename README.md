@@ -13,7 +13,7 @@ Clone the repo and install locally (it will be available on Pypi later):
 
 ```
 git clone https://github.com/mcognetta/simple-maia3-inference
-pip install -e maia3_inference/
+pip install -e simple-maia3-inference
 ```
 
 # API
