@@ -122,7 +122,11 @@ class Maia3:
     # ------------------------------------------------------------------
 
     def logits(
-        self, fen: str, elo_self: float, elo_oppo: float, mask_move_logits: bool = True,
+        self,
+        fen: str,
+        elo_self: float,
+        elo_oppo: float,
+        mask_move_logits: bool = True,
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Single-position inference returning raw logits.
@@ -211,14 +215,14 @@ class Maia3:
         """
         lm, lv, legal = self._run(fens, elo_selfs, elo_oppos)
         return [
-            _compute_probs(fens[i], lm[i], lv[i], legal[i])
-            for i in range(len(fens))
+            _compute_probs(fens[i], lm[i], lv[i], legal[i]) for i in range(len(fens))
         ]
 
 
 # ----------------------------------------------------------------------
 # CLI helpers
 # ----------------------------------------------------------------------
+
 
 def _run_single(args, maia: Maia3) -> None:
     lm, lv, legal = maia._run([args.fen], [args.elo_self], [args.elo_oppo])
@@ -231,16 +235,23 @@ def _run_single(args, maia: Maia3) -> None:
     board = chess.Board(args.fen)
     for move, prob in policy.items():
         bar = "#" * int(prob * 40)
-        print(f"  {move:6s} {board.san(chess.Move.from_uci(move)):6s} {prob:6.2%}  {bar}")
+        print(
+            f"  {move:6s} {board.san(chess.Move.from_uci(move)):6s} {prob:6.2%}  {bar}"
+        )
 
 
-def _build_parser() -> argparse.ArgumentParser:
+def main():
     parser = argparse.ArgumentParser(
         prog="simple-maia3-inference",
         description="Maia3 chess move probability inference",
     )
 
-    parser.add_argument("--fen", required=True, metavar="FEN", help="FEN string for single-position inference")
+    parser.add_argument(
+        "--fen",
+        required=True,
+        metavar="FEN",
+        help="FEN string for single-position inference",
+    )
     parser.add_argument(
         "--elo-self",
         type=float,
@@ -255,11 +266,7 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="ELO",
         help="Elo rating of the opponent (default: 1500)",
     )
-    return parser
 
-
-def main():
-    parser = _build_parser()
     args = parser.parse_args()
     maia = Maia3()
     _run_single(args, maia)
