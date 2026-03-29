@@ -12,7 +12,7 @@ This repo contains the onnx weights (originally found [here](https://github.com/
 Clone the repo and install locally (it will be available on Pypi later):
 
 ```
-git clone https://github.com/CSSLab/maia3_inference
+git clone https://github.com/mcognetta/simple-maia3-inference
 pip install -e maia3_inference/
 ```
 
